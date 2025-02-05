@@ -4,18 +4,17 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class MultiThread extends Thread {
+// MultiThreadedServer
+class MultiThread {
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(5002);
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        ServerSocket serverSocket = new ServerSocket(5003);
         System.out.println("Multi-threaded server started...");
 
         while (true) {
             Socket clientSocket = serverSocket.accept();
-            executor.submit(() -> handleClient(clientSocket));
+            Thread thread = new Thread(() -> handleClient(clientSocket));
+            thread.start();
         }
     }
 
