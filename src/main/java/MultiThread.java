@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 public class MultiThread extends Thread {
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(5000);
+        ServerSocket serverSocket = new ServerSocket(5002);
         ExecutorService executor = Executors.newFixedThreadPool(10);
         System.out.println("Multi-threaded server started...");
 

@@ -29,19 +29,18 @@ public class SingleThread {
             int result = performOperation(num1, num2, operator);
             out.println(result);
 
-
         } catch (IOException | NumberFormatException e) {
-            System.err.println("Error handeling client: " + e.getMessage());
+            System.err.println("Error handling client: " + e.getMessage());
         }
-        private static int performOperation( int num1, int num2, String operator){
-            return switch (operator) {
-                case "A" -> num1 + num2;
-                case "S" -> num1 - num2;
-                case "M" -> num1 * num2;
-                case "D" -> num2 != 0 ? num1 / num2 : 0;
-                default -> 0;
-            };
+    }
 
-        }
+    private static int performOperation(int num1, int num2, String operator) {
+        return switch (operator) {
+            case "A" -> num1 + num2;
+            case "S" -> num1 - num2;
+            case "M" -> num1 * num2;
+            case "D" -> num2 != 0 ? num1 / num2 : 0;
+            default -> 0;
+        };
     }
 }
