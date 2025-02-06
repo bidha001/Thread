@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Client {
     public static void main(String[] args) {
@@ -12,25 +13,26 @@ public class Client {
         try (Socket socket = new Socket(serverAddress, port);
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-             BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
+             Scanner scanner = new Scanner(System.in)) {
 
-            System.out.println("Connected to the server!");
+            System.out.println("Connected to server.");
+            System.out.println("Enter operation (A for add, S for subtract, M for multiply, D for divide): ");
+            String operation = scanner.next().toUpperCase();
 
-            String message;
-            while (true) {
-                System.out.print("Enter message: ");
-                message = consoleReader.readLine();
-                writer.println(message);
+            System.out.print("Enter first number: ");
+            int num1 = scanner.nextInt();
+            System.out.print("Enter second number: ");
+            int num2 = scanner.nextInt();
 
-                if (message.equalsIgnoreCase("exit")) {
-                    break;
-                }
+            // Send request to server
+            writer.println(operation + " " + num1 + " " + num2);
 
-                String serverResponse = reader.readLine();
-                System.out.println("Server: " + serverResponse);
-            }
+            // Receive and print response from server
+            String response = reader.readLine();
+            System.out.println("Server response: " + response);
 
         } catch (IOException e) {
+            System.err.println("Error: Could not connect to server.");
             e.printStackTrace();
         }
     }
