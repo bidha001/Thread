@@ -37,4 +37,14 @@ public class Client {
             System.err.println("Client error: " + e.getMessage());
         }
     }
+
+    private static int performOperation(int num1, int num2, String operator) {
+        return switch (operator) {
+            case "A" -> num1 + num2;
+            case "S" -> num1 - num2;
+            case "M" -> num1 * num2;
+            case "D" -> num2 != 0 ? num1 / num2 : 0;
+            default -> 0;
+        };
+    }
 }
