@@ -3,7 +3,7 @@ import java.net.*;
 import java.util.Scanner;
 
 public class Client {
-    private static final int PORT = 5006; //
+    private static final int PORT = 5004; // Must connect to SingleThreadServer
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);

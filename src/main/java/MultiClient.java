@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MultiClient {
-    private static final int PORT = 5006;
+    private static final int PORT = 5006; // Must connect to MultiThreadedServer
     private static final int THREAD_COUNT = 5;
 
     public static void main(String[] args) {
@@ -24,13 +24,12 @@ public class MultiClient {
             System.out.print("Enter second number: ");
             int num2 = scanner.nextInt();
 
-            System.out.print("Enter operation (A = addition, S = subtraction, M = Multiplication, D = division): ");
+            System.out.print("Enter operation (A = addition, S = subtraction, M = multiplication, D = division): ");
             char operator = scanner.next().charAt(0);
-            scanner.nextLine(); // **FIXED: Changed from scanner.nextInt() to scanner.nextLine()**
+            scanner.nextLine(); // Fix: Consume newline
 
             String request = num1 + " " + num2 + " " + operator;
 
-            // **FIXED: Actually sending the request**
             executor.execute(() -> sendRequest(request));
         }
 

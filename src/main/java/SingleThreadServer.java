@@ -2,11 +2,11 @@ import java.io.*;
 import java.net.*;
 
 public class SingleThreadServer {
-    private static final int PORT = 5004;
+    private static final int PORT = 5004; // Handles Client
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Single-threaded server started on port " + PORT);
+            System.out.println("Single-threaded server started on port " + PORT + " (Listening for Client)");
 
             while (true) { // Keep the server running for multiple clients
                 Socket socket = serverSocket.accept();
