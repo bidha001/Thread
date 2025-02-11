@@ -2,19 +2,21 @@ import java.io.*;
 import java.net.*;
 
 public class SingleThreadServer {
+    private static final int PORT = 5006;
+    private static final int TOTAL_REQUESTS = 10;
+
     public static void main(String[] args) {
-        int totalRequests = 10;
-        try (ServerSocket serverSocket = new ServerSocket(5006)) { // Different port
-            System.out.println("Single-threaded server started...");
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("Single-threaded server started on port " + PORT);
             long startTime = System.currentTimeMillis();
 
-            for (int i = 0; i < totalRequests; i++) {
+            for (int i = 0; i < TOTAL_REQUESTS; i++) {
                 Socket socket = serverSocket.accept();
                 handleClient(socket);
             }
 
             long endTime = System.currentTimeMillis();
-            System.out.println("Time taken: " + (endTime - startTime) / 1000.0 + " seconds");
+            System.out.println("Total processing time (Single-threaded): " + (endTime - startTime) / 1000.0 + " seconds");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -34,7 +36,7 @@ public class SingleThreadServer {
             int num2 = Integer.parseInt(parts[1]);
             char operator = parts[2].charAt(0);
 
-            int result = calculate(num1, num2, operator); // Now calling a local method
+            int result = calculate(num1, num2, operator);
             out.println(result);
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,7 +47,7 @@ public class SingleThreadServer {
         }
     }
 
-    // Moved calculate() method inside SingleThreadServer
+    // Performs calculations
     private static int calculate(int num1, int num2, char operator) {
         return switch (operator) {
             case 'A' -> num1 + num2;

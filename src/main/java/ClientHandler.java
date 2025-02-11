@@ -29,7 +29,7 @@ public class ClientHandler implements Runnable {
             int num2 = Integer.parseInt(parts[1]);
             char operator = parts[2].charAt(0);
 
-            int result = calculate(num1, num2, operator); // Now calling a local method
+            int result = calculate(num1, num2, operator);
             out.println(result);
 
             System.out.println("Thread " + Thread.currentThread().getName() + " finished processing. Result: " + result);
@@ -43,7 +43,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    // Moved calculate() method inside ClientHandler
+    // Performs calculations
     private int calculate(int num1, int num2, char operator) {
         return switch (operator) {
             case 'A' -> num1 + num2;

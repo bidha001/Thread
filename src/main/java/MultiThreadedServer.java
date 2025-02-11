@@ -1,25 +1,28 @@
 import java.io.*;
 import java.net.*;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.*;
 
 public class MultiThreadedServer {
+    private static final int PORT = 5005;
+    private static final int TOTAL_REQUESTS = 10;
+
     public static void main(String[] args) {
-        int totalRequests = 10;
-        // Use a latch to wait until all 10 requests are processed
-        CountDownLatch latch = new CountDownLatch(totalRequests);
-        try (ServerSocket serverSocket = new ServerSocket(5005)) {
-            System.out.println("Multi-threaded server started...");
+        CountDownLatch latch = new CountDownLatch(TOTAL_REQUESTS);
+        ExecutorService threadPool = Executors.newFixedThreadPool(TOTAL_REQUESTS);
+
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("Multi-threaded server started on port " + PORT);
             long startTime = System.currentTimeMillis();
-            // Accept 10 clients and start a separate thread for each
-            for (int i = 0; i < totalRequests; i++) {
+
+            for (int i = 0; i < TOTAL_REQUESTS; i++) {
                 Socket socket = serverSocket.accept();
-                new Thread(new ClientHandler(socket, latch)).start();
+                threadPool.execute(new ClientHandler(socket, latch));
             }
-            // Wait until all threads are finished
-            latch.await();
+
+            latch.await(); // Wait until all threads finish processing
+            threadPool.shutdown(); // Shutdown the thread pool
             long endTime = System.currentTimeMillis();
-            System.out.println("Time taken for " + totalRequests + " requests (Multi-threaded): "
-                    + (endTime - startTime)/1000.0 + " seconds");
+            System.out.println("Total processing time (Multi-threaded): " + (endTime - startTime) / 1000.0 + " seconds");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
