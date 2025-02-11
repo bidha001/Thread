@@ -2,21 +2,17 @@ import java.io.*;
 import java.net.*;
 
 public class SingleThreadServer {
-    private static final int PORT = 5006;
-    private static final int TOTAL_REQUESTS = 10;
+    private static final int PORT = 5004;
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Single-threaded server started on port " + PORT);
-            long startTime = System.currentTimeMillis();
 
-            for (int i = 0; i < TOTAL_REQUESTS; i++) {
+            while (true) { // Keep the server running for multiple clients
                 Socket socket = serverSocket.accept();
                 handleClient(socket);
             }
 
-            long endTime = System.currentTimeMillis();
-            System.out.println("Total processing time (Single-threaded): " + (endTime - startTime) / 1000.0 + " seconds");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -26,18 +22,26 @@ public class SingleThreadServer {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
-            socket.setSoTimeout(5000); // Prevent blocking forever
-
             String input = in.readLine();
-            if (input == null) return;
+            if (input == null) {
+                out.println("ERROR: Empty request");
+                return;
+            }
 
             String[] parts = input.split(" ");
+            if (parts.length < 3) {
+                out.println("ERROR: Invalid request format.");
+                return;
+            }
+
             int num1 = Integer.parseInt(parts[0]);
             int num2 = Integer.parseInt(parts[1]);
             char operator = parts[2].charAt(0);
 
             int result = calculate(num1, num2, operator);
-            out.println(result);
+            out.println(result); // Send result to client
+            System.out.println("Processed: " + num1 + " " + operator + " " + num2 + " = " + result);
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -47,7 +51,6 @@ public class SingleThreadServer {
         }
     }
 
-    // Performs calculations
     private static int calculate(int num1, int num2, char operator) {
         return switch (operator) {
             case 'A' -> num1 + num2;
