@@ -1,33 +1,28 @@
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.CountDownLatch;
 
-public class SingleThreadServer {
-    public static void main(String[] args) {
-        int totalRequests = 10;
-        try (ServerSocket serverSocket = new ServerSocket(5006)) { // Different port
-            System.out.println("Single-threaded server started...");
-            long startTime = System.currentTimeMillis();
+public class ClientHandler implements Runnable {
+    private Socket socket;
+    private CountDownLatch latch;
 
-            for (int i = 0; i < totalRequests; i++) {
-                Socket socket = serverSocket.accept();
-                handleClient(socket);
-            }
-
-            long endTime = System.currentTimeMillis();
-            System.out.println("Time taken: " + (endTime - startTime) / 1000.0 + " seconds");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public ClientHandler(Socket socket, CountDownLatch latch) {
+        this.socket = socket;
+        this.latch = latch;
     }
 
-    public static void handleClient(Socket socket) {
+    @Override
+    public void run() {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
-            socket.setSoTimeout(5000); // Prevent blocking forever
-
+            System.out.println("Thread " + Thread.currentThread().getName() + " started processing request.");
             String input = in.readLine();
-            if (input == null) return;
+
+            if (input == null) {
+                System.out.println("Invalid request received.");
+                return;
+            }
 
             String[] parts = input.split(" ");
             int num1 = Integer.parseInt(parts[0]);
@@ -36,17 +31,20 @@ public class SingleThreadServer {
 
             int result = calculate(num1, num2, operator); // Now calling a local method
             out.println(result);
+
+            System.out.println("Thread " + Thread.currentThread().getName() + " finished processing. Result: " + result);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            latch.countDown();
             try {
                 socket.close();
             } catch (IOException ignored) {}
         }
     }
 
-    // Moved calculate() method inside SingleThreadServer
-    private static int calculate(int num1, int num2, char operator) {
+    // Moved calculate() method inside ClientHandler
+    private int calculate(int num1, int num2, char operator) {
         return switch (operator) {
             case 'A' -> num1 + num2;
             case 'S' -> num1 - num2;
