@@ -1,43 +1,56 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 
-public class SingleThreadServer {
+ class SingleThreadedServer {
     public static void main(String[] args) {
-        int port = 5005;
-
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Single-threaded Server started on port " + port);
-
-            // Accept one client at a time
-            Socket clientSocket = serverSocket.accept();
-            System.out.println("Client is connected!");
-
-            // Handle client communication
-            BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
-
-            String clientMessage;
-            while ((clientMessage = input.readLine()) != null) {
-                System.out.println("Client: " + clientMessage);
-
-                if (clientMessage.equalsIgnoreCase("exit")) {
-                    output.println("Goodbye!");
-                    break;
-                } else {
-                    output.println("Received: " + clientMessage);
-                }
+        int totalRequests = 10;
+        try (ServerSocket serverSocket = new ServerSocket(5000)) {
+            System.out.println("Single-threaded server started...");
+            long startTime = System.currentTimeMillis();
+            // Handle 10 requests sequentially
+            for (int i = 0; i < totalRequests; i++) {
+                Socket socket = serverSocket.accept();
+                handleClient(socket);
             }
-
-            // Close connection after client disconnects
-            clientSocket.close();
-            System.out.println("Client disconnected.");
-
-        } catch (IOException e) {
+            long endTime = System.currentTimeMillis();
+            System.out.println("Time taken for " + totalRequests + " requests (Single-threaded): "
+                    + (endTime - startTime)/1000.0 + " seconds");
+        } catch(IOException e) {
             e.printStackTrace();
         }
+    }
+
+    // Handles a single client request
+    public static void handleClient(Socket socket) {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+            String input = in.readLine(); // Format: "num1 num2 operator"
+            String[] parts = input.split(" ");
+            int num1 = Integer.parseInt(parts[0]);
+            int num2 = Integer.parseInt(parts[1]);
+            char operator = parts[2].charAt(0);
+            int result = calculate(num1, num2, operator);
+            out.println(result);
+        } catch(IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                socket.close();
+            } catch(IOException ex) {
+                // Ignore error on closing
+            }
+        }
+    }
+
+    // Performs calculation based on the operator
+    public static int calculate(int num1, int num2, char operator) {
+        return switch(operator) {
+            case 'A' -> num1 + num2;
+            case 'S' -> num1 - num2;
+            case 'M' -> num1 * num2;
+            case 'D' -> (num2 != 0 ? num1 / num2 : 0);
+            case 'R' -> (num2 != 0 ? num1 % num2 : 0); // Modulus
+            default -> 0;
+        };
     }
 }

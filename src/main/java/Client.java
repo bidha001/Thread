@@ -1,39 +1,48 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.Scanner;
+import java.io.*;
+import java.net.*;
+import java.util.concurrent.CountDownLatch;
 
 public class Client {
     public static void main(String[] args) {
-        String serverAddress = "localhost";
-        int port = 5005;
+        int totalRequests = 10;
+        // Operators: A = addition, S = subtraction, M = multiplication, D = division, R = modulus.
+        String[] operators = {"A", "S", "M", "D", "R"};
+        CountDownLatch latch = new CountDownLatch(totalRequests);
+        long startTime = System.currentTimeMillis();
 
-        try (Socket socket = new Socket(serverAddress, port);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-             Scanner scanner = new Scanner(System.in)) {
+        // Start 10 client threads simultaneously
+        for (int i = 0; i < totalRequests; i++) {
+            final int index = i;
+            new Thread(() -> {
+                try (Socket socket = new Socket("localhost", 5000);
+                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                     PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
-            System.out.println("Connected to server.");
-            System.out.println("Enter operation (A for add, S for subtract, M for multiply, D for divide): ");
-            String operation = scanner.next().toUpperCase();
+                    // Select operation in a cycle to get different operations for each request
+                    String op = operators[index % operators.length];
+                    // Vary numbers slightly for different results: e.g., num1 = 10+index, num2 = 5+index
+                    int num1 = 10 + index;
+                    int num2 = 5 + index;
+                    String request = num1 + " " + num2 + " " + op;
+                    out.println(request);
+                    String result = in.readLine();
+                    System.out.println("Request: " + request + " => Result: " + result);
+                } catch(IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    latch.countDown();
+                }
+            }).start();
+        }
 
-            System.out.print("Enter first number: ");
-            int num1 = scanner.nextInt();
-            System.out.print("Enter second number: ");
-            int num2 = scanner.nextInt();
-
-            // Send request to server
-            writer.println(operation + " " + num1 + " " + num2);
-
-            // Receive and print response from server
-            String response = reader.readLine();
-            System.out.println("Server response: " + response);
-
-        } catch (IOException e) {
-            System.err.println("Error: Could not connect to server.");
+        // Wait until all client threads finish
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        long endTime = System.currentTimeMillis();
+        System.out.println("Total time taken for " + totalRequests + " client requests: "
+                + (endTime - startTime)/1000.0 + " seconds");
     }
 }
