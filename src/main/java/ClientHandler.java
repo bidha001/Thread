@@ -25,34 +25,23 @@ public class ClientHandler implements Runnable {
                 return;
             }
 
-            try {
-                int num1 = Integer.parseInt(parts[0]);
-                int num2 = Integer.parseInt(parts[1]);
-                char operator = parts[2].charAt(0);
+            int num1 = Integer.parseInt(parts[0]);
+            int num2 = Integer.parseInt(parts[1]);
+            char operator = parts[2].charAt(0);
 
-                int result = calculate(num1, num2, operator);
-                out.println(result); // Send result to client
-                System.out.println("Processed: " + num1 + " " + operator + " " + num2 + " = " + result);
-            } catch (NumberFormatException e) {
-                out.println("ERROR: Invalid number format.");
-            }
+            int result = switch (operator) {
+                case 'A' -> num1 + num2;
+                case 'S' -> num1 - num2;
+                case 'M' -> num1 * num2;
+                case 'D' -> (num2 != 0 ? num1 / num2 : 0);
+                default -> 0;
+            };
+
+            out.println(result);
+            System.out.println("Processed: " + num1 + " " + operator + " " + num2 + " = " + result);
 
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                socket.close();
-            } catch (IOException ignored) {}
         }
-    }
-
-    private int calculate(int num1, int num2, char operator) {
-        return switch (operator) {
-            case 'A' -> num1 + num2;
-            case 'S' -> num1 - num2;
-            case 'M' -> num1 * num2;
-            case 'D' -> (num2 != 0 ? num1 / num2 : 0);
-            default -> 0;
-        };
     }
 }
