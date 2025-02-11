@@ -14,7 +14,7 @@ public class Client {
         for (int i = 0; i < totalRequests; i++) {
             final int index = i;
             new Thread(() -> {
-                try (Socket socket = new Socket("localhost", 5000);
+                try (Socket socket = new Socket("localhost", 5002);
                      BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                      PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
