@@ -1,3 +1,4 @@
+
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
@@ -15,33 +16,39 @@ public class MultiClient {
 
             System.out.println("Connected to MultiThreadedServer. Type 'exit' to quit.");
 
+            // Ask for the number of operations
             System.out.print("Enter number of operations to send: ");
             int numOperations = scanner.nextInt();
             scanner.nextLine(); // Consume the newline
+            out.println(numOperations); // Send the count to the server
 
             // Collect all operations from the user first
+            String[] operations = new String[numOperations];
             for (int i = 0; i < numOperations; i++) {
+                System.out.println("\nOperation " + (i + 1) + ":");
                 System.out.print("Enter first number: ");
-                int num1 = scanner.nextInt();
+                String firstNumber = scanner.nextLine();
 
                 System.out.print("Enter second number: ");
-                int num2 = scanner.nextInt();
+                String secondNumber = scanner.nextLine();
 
                 System.out.print("Enter operation (A = addition, S = subtraction, M = multiplication, D = division): ");
-                char operator = scanner.next().charAt(0);
-                scanner.nextLine(); // Consume the newline
+                char operator = scanner.nextLine().charAt(0);
 
-                String request = num1 + " " + num2 + " " + operator;
-                out.println(request);
+                operations[i] = firstNumber + " " + secondNumber + " " + operator;
             }
-            out.println("exit"); // Signal end of requests
 
-            // Delay to ensure the server processes all requests
-            Thread.sleep(500);
+            // Send all operations to the server at once
+            for (String operation : operations) {
+                out.println(operation);
+            }
 
-            // No need to wait for responses in this multi-threaded scenario,
-            // as each thread logs its own result and time to the server console.
-        } catch (IOException | InterruptedException e) {
+            // Wait for all results from the server
+            for (int i = 0; i < numOperations; i++) {
+                String result = in.readLine();
+                System.out.println("Result for operation " + (i + 1) + ": " + result);
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
         scanner.close();
