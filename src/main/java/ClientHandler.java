@@ -10,8 +10,7 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        // Record the total start time for processing this client's requests
-        long totalStartTime = System.nanoTime();
+
 
         try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
@@ -35,10 +34,18 @@ public class ClientHandler implements Runnable {
                     int num2 = Integer.parseInt(parts[1]);
                     char operator = parts[2].charAt(0);
 
+                    long totalStartTime = System.currentTimeMillis();
+                    int i=0;
                     // Calculate result without measuring individual operation time
-                    int result = calculate(num1, num2, operator);
-                    out.println(result);
-                    System.out.println("Processed: " + num1 + " " + operator + " " + num2 + " = " + result);
+                    while(i<100000) {
+                        int result = calculate(num1, num2, operator);
+                        i++;
+                    }
+                    long totalEndTime = System.currentTimeMillis();
+                    double totalTimeSec = (totalEndTime - totalStartTime) / 1_000_000_000.0;
+                    System.out.println("Total time taken for client " + socket.getInetAddress() + " operations: " + totalTimeSec + " seconds");
+                    out.println();
+                    System.out.println("Processed: " + num1 + " " + operator + " " + num2 + " = ");
                 } catch (NumberFormatException e) {
                     out.println("ERROR: Invalid number format.");
                 }
@@ -50,10 +57,7 @@ public class ClientHandler implements Runnable {
                 socket.close();
             } catch (IOException ignored) {}
         }
-        // Record total processing time and convert it to seconds
-        long totalEndTime = System.nanoTime();
-        double totalTimeSec = (totalEndTime - totalStartTime) / 1_000_000_000.0;
-        System.out.println("Total time taken for client " + socket.getInetAddress() + " operations: " + totalTimeSec + " seconds");
+
     }
 
     // Method for performing arithmetic operations
@@ -64,6 +68,7 @@ public class ClientHandler implements Runnable {
             case 'M' -> num1 * num2;
             case 'D' -> (num2 != 0 ? num1 / num2 : 0);
             default -> 0;
+
         };
     }
 }

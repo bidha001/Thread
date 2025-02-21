@@ -10,10 +10,13 @@ public class SingleThreadServer {
 
             while (true) {
                 Socket socket = serverSocket.accept();
+                Thread.sleep(1000);
                 handleClient(socket); // Process each client sequentially
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

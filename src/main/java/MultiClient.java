@@ -4,7 +4,7 @@ import java.net.*;
 import java.util.Scanner;
 
 public class MultiClient {
-    private static final int PORT = 5006; // Connects to the multi-threaded server
+    private static final int PORT = 5008; // Connects to the multi-threaded server
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
